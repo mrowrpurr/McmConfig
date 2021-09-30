@@ -1,0 +1,35 @@
+{
+    "left": [
+        {
+            "type": "header",
+            "text": "Below is the text we're working on..."
+        },
+        {
+            "name": "MyCoolInput",
+            "type": "input",
+            "tooltip": "This sets the coolest input evar!"
+        },
+        {
+            "type": "header",
+            "text": "This is the header"
+        },
+        {
+            "type": "text",
+            "description": "This is the description",
+            "text": "This is the text",
+            "tooltip": "This is the tooltip"
+        }
+    ],
+    "right": [
+        {
+            "type": "header",
+            "text": "This is the header on the right"
+        },
+        {
+            "type": "text",
+            "description": "This is the RIGHT description",
+            "text": "This is the RIGHT text",
+            "tooltip": "This is the RIGHT tooltip"
+        }
+    ]
+}

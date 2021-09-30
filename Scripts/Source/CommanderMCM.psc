@@ -1,0 +1,1 @@
+scriptName CommanderMCM extends McmConfigMenu
