@@ -40,6 +40,8 @@ function RenderWidget(int widget)
         AddHeaderOption(JMap.getStr(widget, "text"))
     elseIf type == "text"
         RenderTextWidget(widget)
+    elseIf type == "input"
+        RenderInputWidget(widget)
     endIf
 endFunction
 
@@ -48,6 +50,31 @@ function RenderTextWidget(int widget)
         JMap.getStr(widget, "description"), \
         JMap.getStr(widget, "text") \
     )
+endFunction
+
+; name": "MyCoolInput",
+; "type": "input",
+; "text": "Set the Cool Input",
+; "tooltip": "This sets the coolest inp
+; value: ""
+
+function RenderInputWidget(int widget)
+    string name = JMap.getStr(widget, "name")
+    RegisterOption(widget, \
+        AddInputOption( \
+            JMap.getStr(widget, "text"), \
+            JMap.getStr(widget, "prompt") \
+        ))
+endFunction
+
+function RegisterOption(int widget, int optionId)
+    int optionMap = McmConfig.GetModOptionMap(ModName)
+    JIntMap.setObj(optionId, optionId, widget)
+endFunction
+
+int function GetOptionWidget(int optionId)
+    int optionMap = McmConfig.GetModOptionMap(ModName)
+    return JIntMap.getObj(optionMap, optionId)
 endFunction
 
 function LoadPages()
@@ -65,3 +92,17 @@ string function GetModNameFromScriptName()
     int mcmIndex = StringUtil.Find(script, "MCM ")
     return StringUtil.Substring(script, 1, mcmIndex - 1)
 endFunction
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Events
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+event OnOptionInputOpen(int optionId)
+    SetInputDialogStartText("Whoo hoo... you can add start text")
+endEvent
+
+event OnOptionInputAccept(int optionId, string text)
+    int widget = GetOptionWidget(optionId)
+    string widgetName = JMap.getStr(widget, "name")
+    McmConfig.SetString(ModName, widgetName, text)
+endEvent

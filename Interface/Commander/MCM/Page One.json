@@ -7,7 +7,10 @@
         {
             "name": "MyCoolInput",
             "type": "input",
-            "tooltip": "This sets the coolest input evar!"
+            "prompt": "Set the Cool Input",
+            "value": "Click here",
+            "tooltip": "This sets the coolest input evar!",
+            "text": "This is the start text"
         },
         {
             "type": "header",
