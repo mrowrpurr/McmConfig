@@ -41,7 +41,7 @@ endFunction
 
 ; Set/Get ARRAYS
 
-bool function IsConfigVariableExists(string mod, string name) global
+bool function ConfigVariableExists(string mod, string name) global
     return JMap.hasKey(GetModValueMap(mod), name)
 endFunction
 

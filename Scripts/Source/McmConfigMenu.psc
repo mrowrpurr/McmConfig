@@ -3,6 +3,8 @@ scriptName McmConfigMenu extends SKI_ConfigBase hidden
 
 ; TODO option for logo page
 
+; TODO - "onchange" functions
+
 ; TODO - Make sure folks can actually ENABLE and DISABLE widgets on the page dynamically
 ;        e.g. EnableOption("NAME") and DisableOption("NAME")
 ;        as well as HideOption("NAME") and ShowOption("NAME")
@@ -64,8 +66,8 @@ function RenderWidget(int widget)
         RenderToggleWidget(widget)
     elseIf type == "slider"
         RenderSliderWidget(widget)
-    ; elseIf type == "menu"
-    ;     RenderMenuWidget(widget)
+    elseIf type == "menu"
+        RenderMenuWidget(widget)
     endIf
 endFunction
 
@@ -87,7 +89,7 @@ endFunction
 function RenderToggleWidget(int widget)
     string name = JMap.getStr(widget, "name")
     bool default = JMap.getStr(widget, "default") == "true"
-    if McmConfig.IsConfigVariableExists(ModName, name)
+    if McmConfig.ConfigVariableExists(ModName, name)
         default = McmConfig.GetBool(ModName, name)
     endIf
     McmConfig.SetBool(ModName, name, default)
@@ -102,7 +104,7 @@ endFunction
 function RenderSliderWidget(int widget)
     string name = JMap.getStr(widget, "name")
     float value = JMap.getFlt(widget, "value")
-    if McmConfig.IsConfigVariableExists(ModName, name)
+    if McmConfig.ConfigVariableExists(ModName, name)
         value = McmConfig.GetFloat(ModName, name)
     endIf
     RegisterOption(widget, \
@@ -110,6 +112,17 @@ function RenderSliderWidget(int widget)
             JMap.getStr(widget, "text"), \
             value \
         ))
+endFunction
+
+function RenderMenuWidget(int widget)
+    string name = JMap.getStr(widget, "name")
+    int options = JMap.getObj(widget, "options")
+    string text = JMap.getStr(widget, "text")
+    string value = JMap.getStr(widget, "value")
+    if McmConfig.ConfigVariableExists(ModName, name)
+        value = McmConfig.GetString(ModName, name)
+    endIf
+    RegisterOption(widget, AddMenuOption(text, value))
 endFunction
 
 function RegisterOption(int widget, int optionId)
@@ -202,6 +215,21 @@ event OnOptionSliderAccept(int optionId, float value)
     string name = JMap.getStr(widget, "name")
     McmConfig.SetFloat(ModName, name, value)
     SetSliderOptionValue(optionId, value)
+endEvent
+
+event OnOptionMenuOpen(int optionId)
+    int widget = GetOptionWidget(optionId)
+    int options = JMap.getObj(widget, "options")
+    SetMenuDialogOptions(JArray.asStringArray(options))
+endEvent
+
+event OnOptionMenuAccept(int optionId, int index)
+    int widget = GetOptionWidget(optionId)
+    string name = JMap.getStr(widget, "name")
+    int options = JMap.getObj(widget, "options")
+    string selected = JArray.getStr(options, index)
+    McmConfig.SetString(ModName, name, selected)
+    SetMenuOptionValue(optionId, selected)
 endEvent
 
 function InvokeFunction(string functionName)

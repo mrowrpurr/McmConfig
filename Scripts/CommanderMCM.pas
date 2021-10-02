@@ -1,5 +1,5 @@
 .info
-  .source "CommanderMCM.psc"
+  .source "JurassicParkMCM.psc"
   .modifyTime 1633192398
   .compileTime 1633192748
   .user "mrowr"
@@ -10,7 +10,7 @@
   .flag hidden 0
 .endUserFlagsRef
 .objectTable
-  .object CommanderMCM McmConfigMenu
+  .object JurassicParkMCM McmConfigMenu
     .userFlags 0
     .docString ""
     .autoState 

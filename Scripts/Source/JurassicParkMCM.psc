@@ -1,4 +1,4 @@
-scriptName CommanderMCM extends McmConfigMenu
+scriptName JurassicParkMCM extends McmConfigMenu
 
 function RebootJurassicPark()
     Debug.MessageBox("Holy omg jeepers it worked.")

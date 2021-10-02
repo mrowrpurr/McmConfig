@@ -23,6 +23,17 @@
             "range": [1, 10],
             "interval": 2,
             "value": 5
+        },
+        {
+            "type": "menu",
+            "name": "FaveDino",
+            "text": "Favorite Dinosaur",
+            "value": "Choose Dino",
+            "options": [
+                "Velociraptor",
+                "Tricerotops",
+                "Brontosaurus"
+            ]
         }
     ]
 }
