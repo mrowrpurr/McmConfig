@@ -1,7 +1,11 @@
 scriptName McmConfigMenu extends SKI_ConfigBase hidden
 {Extend this to create a McmConfig Mod Configuration Menu}
 
+; TODO make function invocation work after player load games
+
 string property McmFolder auto
+
+; TODO - Dynamically Loaded Page Names
 
 event OnConfigInit()
     ModName = GetModNameFromScriptName()
@@ -10,7 +14,8 @@ event OnConfigInit()
 endEvent
 
 event OnPageReset(string pageName)
-    int page = JValue.readFromFile(McmFolder + "\\" + pageName + ".json")
+    string pageFileName = McmConfig.GetPageFileName(ModName, pageName)
+    int page = JValue.readFromFile(McmFolder + "\\" + pageFileName)
 
     ; Left Column
     SetCursorFillMode(TOP_TO_BOTTOM)
@@ -46,10 +51,10 @@ function RenderWidget(int widget)
 endFunction
 
 function RenderTextWidget(int widget)
-    AddTextOption( \
+    RegisterOption(widget, AddTextOption( \
         JMap.getStr(widget, "description"), \
         JMap.getStr(widget, "text") \
-    )
+        ))
 endFunction
 
 ; name": "MyCoolInput",
@@ -69,7 +74,7 @@ endFunction
 
 function RegisterOption(int widget, int optionId)
     int optionMap = McmConfig.GetModOptionMap(ModName)
-    JIntMap.setObj(optionId, optionId, widget)
+    JIntMap.setObj(optionMap, optionId, widget)
 endFunction
 
 int function GetOptionWidget(int optionId)
@@ -79,10 +84,20 @@ endFunction
 
 function LoadPages()
     int pageFiles = JValue.readFromDirectory(McmFolder)
+    StartListeningToAllFunctionCallsInAllPages(pageFiles)
+    string[] pageFileNames = JMap.allKeysPArray(pageFiles)
     Pages = JMap.allKeysPArray(pageFiles)
     int i = 0
     while i < Pages.Length
+        ; Remove the .json
         Pages[i] = StringUtil.Substring(Pages[i], 0, StringUtil.Find(Pages[i], ".json"))
+
+        ; Remove the number prefix
+        Pages[i] = StringUtil.Substring(Pages[i], StringUtil.Find(Pages[i], "-") + 1)
+
+        ; Add the page with the filename
+        McmConfig.AddPageFileName(ModName, Pages[i], pageFileNames[i])
+
         i += 1
     endWhile
 endFunction
@@ -106,3 +121,53 @@ event OnOptionInputAccept(int optionId, string text)
     string widgetName = JMap.getStr(widget, "name")
     McmConfig.SetString(ModName, widgetName, text)
 endEvent
+
+event OnOptionSelect(int optionId)
+    int widget = GetOptionWidget(optionId)
+    string functionName = JMap.getStr(widget, "function")
+    if functionName
+        InvokeFunction(functionName)
+    endIf
+endEvent
+
+function InvokeFunction(string functionName)
+    int theEvent = ModEvent.Create(ModName + " MCM Function " + functionName)
+    ModEvent.Send(theEvent)
+endFunction
+
+function StartListeningToAllFunctionCallsInAllPages(int pageMap)
+    string[] pageNames = JMap.allKeysPArray(pageMap)
+    int pageIndex = 0
+    while pageIndex < pageNames.Length
+        int page = JMap.getObj(pageMap, pageNames[pageIndex])
+        int leftColumn = JMap.getObj(page, "left")
+        int rightColumn = JMap.getObj(page, "right")
+
+        ; Go through right column and activate functions
+        int widgetCount = JArray.count(leftColumn)
+        int widgetIndex = 0
+        while widgetIndex < widgetCount
+            int widget = JArray.getObj(leftColumn, widgetIndex)
+            string functionName = JMap.getStr(widget, "function")
+            if functionName
+                Debug.MessageBox("Listen to function " + functionName)
+                RegisterForModEvent(ModName + " MCM Function " + functionName, functionName)
+            endIf
+            widgetIndex += 1
+        endWhile
+
+        ; Go through left column and activate functions
+        widgetCount = JArray.count(rightColumn)
+        widgetIndex = 0
+        while widgetIndex < widgetCount
+            int widget = JArray.getObj(rightColumn, widgetIndex)
+            string functionName = JMap.getStr(widget, "function")
+            if functionName
+                RegisterForModEvent(ModName + " MCM Function " + functionName, functionName)
+            endIf
+            widgetIndex += 1
+        endWhile
+
+        pageIndex += 1
+    endWhile
+endFunction

@@ -1,0 +1,10 @@
+{
+    "left": [
+        {
+            "type": "text",
+            "description": "Hold onto yout butts...",
+            "text": "Reboot",
+            "function": "RebootJurassicPark"
+        }
+    ]
+}
