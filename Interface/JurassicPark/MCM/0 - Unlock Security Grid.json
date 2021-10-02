@@ -1,0 +1,18 @@
+{
+    "visible": true,
+    "left": [
+        {
+            "type": "input",
+            "text": "Unlock security grid",
+            "prompt": "Enter Password",
+            "onchange": "OnPasswordAttempt"
+        }
+    ],
+    "right": [
+        {
+            "type": "text",
+            "text": "Attempt Failed",
+            "color": "#ff0000"
+        }
+    ]
+}

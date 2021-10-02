@@ -19,17 +19,32 @@ string property McmFolder auto
 
 ; TODO - Dynamically Loaded Page Names
 
+string property LogoFile auto
+
 event OnConfigInit()
     ModName = GetModNameFromScriptName()
     McmFolder = "Data\\Interface\\" + ModName + "\\MCM"
     LoadPages()
     OnMenuInit()
+    if ! LogoFile
+        string expectedLocation = McmFolder + "/" + ModName + ".dds"
+        if MiscUtil.FileExists(expectedLocation)
+            LogoFile = ModName + "\\MCM\\" + ModName + ".dds"
+        endIf
+    endIf
 endEvent
 
 event OnMenuInit()
 endEvent
 
 event OnPageReset(string pageName)
+    if pageName == "" && LogoFile
+        LoadCustomContent(LogoFile)
+        return
+    else
+        UnloadCustomContent()
+    endIf
+
     string pageFileName = McmConfig.GetPageFileName(ModName, pageName)
     int page = JValue.readFromFile(McmFolder + "\\" + pageFileName)
 
@@ -81,11 +96,18 @@ function RenderWidget(int widget)
     endIf
 endFunction
 
+        ; font color='#FF0000'>
 function RenderTextWidget(int widget)
-    RegisterOption(widget, AddTextOption( \
-        JMap.getStr(widget, "description"), \
-        JMap.getStr(widget, "text") \
-        ))
+    string color = JMap.getStr(widget, "color")
+    string text = JMap.getStr(widget, "text")
+    string description = JMap.getStr(widget, "description")
+
+    if color
+        text = "<font color='" + color + "'>" + text + "</font>"
+        description = "<font color='" + color + "'>" + description + "</font>"
+    endIf
+
+    RegisterOption(widget, AddTextOption(description, text))
 endFunction
 
 function RenderInputWidget(int widget)
@@ -168,24 +190,53 @@ endFunction
 
 function LoadPages()
     int pageFiles = JValue.readFromDirectory(McmFolder)
-    StartListeningToAllFunctionCallsInAllPages(pageFiles)
     string[] pageFileNames = JMap.allKeysPArray(pageFiles)
-    Pages = JMap.allKeysPArray(pageFiles)
+
+    StartListeningToAllFunctionCallsInAllPages(pageFiles)
+
+    string[] mcmPages
+
     int i = 0
-    while i < Pages.Length
+    while i < pageFileNames.Length
+        ; Get the page "object"
+        int page = JMap.getObj(pageFiles, pageFileNames[i]) 
+
+        ; Debug.MessageBox(page)
+
+        InitializePageConfiguration(page)
+
+        string pageName = pageFileNames[i]
+
+        ; Debug.MessageBox(pageName)
+
         ; Remove the .json
-        Pages[i] = StringUtil.Substring(Pages[i], 0, StringUtil.Find(Pages[i], ".json"))
+        pageName = StringUtil.Substring(pageName, 0, StringUtil.Find(pageName, ".json"))
 
         ; Remove the number prefix
-        Pages[i] = StringUtil.Substring(Pages[i], StringUtil.Find(Pages[i], "-") + 1)
+        pageName = StringUtil.Substring(pageName, StringUtil.Find(pageName, "-") + 1)
+
+        ; Debug.MessageBox(pageName)
 
         ; Add the page with the filename
-        McmConfig.AddPageFileName(ModName, Pages[i], pageFileNames[i])
+        McmConfig.AddPageFileName(ModName, pageName, pageFileNames[i])
 
-        InitializePageConfiguration(JMap.getObj(pageFiles, pageFileNames[i]))
+        if (! JMap.hasKey(page, "visible")) || JMap.getInt(page, "visible")
+            if mcmPages
+                mcmPages = Utility.ResizeStringArray(mcmPages, mcmPages.Length + 1)
+                mcmPages[mcmPages.Length - 1] = pageName
+            else
+                
+                mcmPages = new string[1]
+                mcmPages[0] = pageName
+            endIf
+        endIf
+
+        ; Debug.MessageBox(mcmPages)
 
         i += 1
     endWhile
+
+    Pages = mcmPages
 endFunction
 
 function InitializePageConfiguration(int page)
@@ -237,20 +288,27 @@ endFunction
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 
 event OnOptionInputOpen(int optionId)
-    SetInputDialogStartText("Whoo hoo... you can add start text")
+    ; SetInputDialogStartText("") ; TODO
 endEvent
 
 event OnOptionInputAccept(int optionId, string text)
     int widget = GetOptionWidget(optionId)
     string widgetName = JMap.getStr(widget, "name")
     McmConfig.SetString(ModName, widgetName, text)
+    string onchange = JMap.getStr(widget, "onchange")
+    if onchange
+        int theEvent = ModEvent.Create(ModName + " MCM OnChange " + onchange)
+        ModEvent.PushString(theEvent, text)
+        ModEvent.Send(theEvent)
+    endIf
 endEvent
 
 event OnOptionSelect(int optionId)
     int widget = GetOptionWidget(optionId)
-    string functionName = JMap.getStr(widget, "function")
+    string functionName = JMap.getStr(widget, "onclick")
     if functionName
-        InvokeFunction(functionName)
+        int theEvent = ModEvent.Create(ModName + " MCM OnClick " + functionName)
+        ModEvent.Send(theEvent)
     endIf
     string type = JMap.getStr(widget, "type")
     if type == "toggle"
@@ -335,12 +393,6 @@ event OnOptionKeyMapChange(int optionId, int keyCode, string conflictControl, st
         ModEvent.Send(theEvent)
     endIf
 endEvent
-
-; Refactor
-function InvokeFunction(string functionName)
-    int theEvent = ModEvent.Create(ModName + " MCM Function " + functionName)
-    ModEvent.Send(theEvent)
-endFunction
 
 function StartListeningToAllFunctionCallsInAllPages(int pageMap)
     string[] pageNames = JMap.allKeysPArray(pageMap)

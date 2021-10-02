@@ -1,5 +1,14 @@
 scriptName JurassicParkMCM extends McmConfigMenu
 
+Sound property JP_PasswordFailure auto
+
+function OnPasswordAttempt(string password)
+    JP_PasswordFailure.Play(Game.GetPlayer())
+    Utility.WaitMenuMode(3.5)
+    JP_PasswordFailure.Play(Game.GetPlayer())
+endFunction
+
+
 string GUAR_PLUGIN = "mihailguar.esp"
 int[] GUAR_FORM_IDS
 
