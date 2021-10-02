@@ -68,6 +68,8 @@ function RenderWidget(int widget)
         RenderSliderWidget(widget)
     elseIf type == "menu"
         RenderMenuWidget(widget)
+    else
+        AddEmptyOption()
     endIf
 endFunction
 

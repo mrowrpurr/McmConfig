@@ -4,6 +4,7 @@
             "type": "header",
             "text": "Welcome to Jurassic Park"
         },
+        {},
         {
             "type": "text",
             "description": "Hold onto yout butts...",
@@ -27,6 +28,7 @@
             "value": 5,
             "tooltip": "Configures number of dinosaurs"
         },
+        {},
         {
             "type": "menu",
             "name": "FaveDino",
