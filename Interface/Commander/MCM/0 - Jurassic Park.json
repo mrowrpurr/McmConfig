@@ -1,0 +1,28 @@
+{
+    "left": [
+        {
+            "type": "header",
+            "text": "Welcome to Jurassic Park"
+        },
+        {
+            "type": "text",
+            "description": "Hold onto yout butts...",
+            "text": "Reboot",
+            "function": "RebootJurassicPark"
+        },
+        {
+            "type": "toggle",
+            "text": "Dinosaur Gates Locked",
+            "name": "DinoGatesLocked",
+            "default": "true"
+        },
+        {
+            "type": "slider",
+            "name": "NumberOfDinos",
+            "text": "Number of dinosaurs",
+            "range": [1, 10],
+            "interval": 2,
+            "value": 5
+        }
+    ]
+}

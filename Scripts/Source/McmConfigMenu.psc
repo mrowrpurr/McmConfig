@@ -1,6 +1,16 @@
 scriptName McmConfigMenu extends SKI_ConfigBase hidden
 {Extend this to create a McmConfig Mod Configuration Menu}
 
+; TODO option for logo page
+
+; TODO - Make sure folks can actually ENABLE and DISABLE widgets on the page dynamically
+;        e.g. EnableOption("NAME") and DisableOption("NAME")
+;        as well as HideOption("NAME") and ShowOption("NAME")
+
+; TODO: for all options, support "enabled": true/false
+
+; TODO: allow 'true' 'false' boolean support
+
 ; TODO make function invocation work after player load games
 
 string property McmFolder auto
@@ -39,6 +49,9 @@ function RenderWidgets(int widgets)
     endWhile
 endFunction
 
+; (A) Squish this RenderWidget function BACK into the RenderWidgets function
+;     and put that into the OnPageReset
+; (B) Put all of the RenderWidget functions into OnPageReset
 function RenderWidget(int widget)
     string type = JMap.getStr(widget, "type")
     if type == "header"
@@ -47,6 +60,12 @@ function RenderWidget(int widget)
         RenderTextWidget(widget)
     elseIf type == "input"
         RenderInputWidget(widget)
+    elseIf type == "toggle"
+        RenderToggleWidget(widget)
+    elseIf type == "slider"
+        RenderSliderWidget(widget)
+    ; elseIf type == "menu"
+    ;     RenderMenuWidget(widget)
     endIf
 endFunction
 
@@ -57,18 +76,39 @@ function RenderTextWidget(int widget)
         ))
 endFunction
 
-; name": "MyCoolInput",
-; "type": "input",
-; "text": "Set the Cool Input",
-; "tooltip": "This sets the coolest inp
-; value: ""
-
 function RenderInputWidget(int widget)
-    string name = JMap.getStr(widget, "name")
     RegisterOption(widget, \
         AddInputOption( \
             JMap.getStr(widget, "text"), \
             JMap.getStr(widget, "prompt") \
+        ))
+endFunction
+
+function RenderToggleWidget(int widget)
+    string name = JMap.getStr(widget, "name")
+    bool default = JMap.getStr(widget, "default") == "true"
+    if McmConfig.IsConfigVariableExists(ModName, name)
+        default = McmConfig.GetBool(ModName, name)
+    endIf
+    McmConfig.SetBool(ModName, name, default)
+    RegisterOption(widget, \
+        AddToggleOption( \
+            JMap.getStr(widget, "text"), \
+            default \
+        ))
+endFunction
+
+; Add decimal precision
+function RenderSliderWidget(int widget)
+    string name = JMap.getStr(widget, "name")
+    float value = JMap.getFlt(widget, "value")
+    if McmConfig.IsConfigVariableExists(ModName, name)
+        value = McmConfig.GetFloat(ModName, name)
+    endIf
+    RegisterOption(widget, \
+        AddSliderOption( \
+            JMap.getStr(widget, "text"), \
+            value \
         ))
 endFunction
 
@@ -128,6 +168,40 @@ event OnOptionSelect(int optionId)
     if functionName
         InvokeFunction(functionName)
     endIf
+    string type = JMap.getStr(widget, "type")
+    if type == "toggle"
+        string name = JMap.getStr(widget, "name")
+        bool currentValue = McmConfig.GetBool(ModName, name)
+        SetToggleOptionValue(optionId, ! currentValue)
+        McmConfig.SetBool(ModName, name, ! currentValue)
+    endIf
+endEvent
+
+event OnOptionSliderOpen(int optionId)
+    int widget = GetOptionWidget(optionId)
+    int range = JMap.getObj(widget, "range")
+    float start = JArray.getFlt(range, 0)
+    float end = JArray.getFlt(range, 1)
+    float value = JMap.getFlt(widget, "value")
+    float default = JMap.getFlt(widget, "default")
+    if ! JMap.hasKey(widget, "default")
+        default = value
+    endIf
+    float interval = JMap.getFlt(widget, "interval")
+    if ! interval
+        interval = 1
+    endIf
+    SetSliderDialogRange(start, end)
+    SetSliderDialogInterval(interval)
+    SetSliderDialogStartValue(value)
+    SetSliderDialogDefaultValue(default)
+endEvent
+
+event OnOptionSliderAccept(int optionId, float value)
+    int widget = GetOptionWidget(optionId)
+    string name = JMap.getStr(widget, "name")
+    McmConfig.SetFloat(ModName, name, value)
+    SetSliderOptionValue(optionId, value)
 endEvent
 
 function InvokeFunction(string functionName)
@@ -150,7 +224,6 @@ function StartListeningToAllFunctionCallsInAllPages(int pageMap)
             int widget = JArray.getObj(leftColumn, widgetIndex)
             string functionName = JMap.getStr(widget, "function")
             if functionName
-                Debug.MessageBox("Listen to function " + functionName)
                 RegisterForModEvent(ModName + " MCM Function " + functionName, functionName)
             endIf
             widgetIndex += 1

@@ -9,6 +9,42 @@ function SetString(string mod, string name, string value) global
     JMap.setStr(GetModValueMap(mod), name, value)
 endFunction
 
+int function GetInt(string mod, string name) global
+    return JMap.getInt(GetModValueMap(mod), name)
+endFunction
+
+function SetInt(string mod, string name, int value) global
+    JMap.setInt(GetModValueMap(mod), name, value)
+endFunction
+
+float function GetFloat(string mod, string name) global
+    return JMap.getFlt(GetModValueMap(mod), name)
+endFunction
+
+function SetFloat(string mod, string name, float value) global
+    JMap.setFlt(GetModValueMap(mod), name, value)
+endFunction
+
+bool function GetBool(string mod, string name) global
+    return JMap.getInt(GetModValueMap(mod), name) == 1
+endFunction
+
+function SetBool(string mod, string name, bool value) global
+    if value
+        JMap.setInt(GetModValueMap(mod), name, 1)
+    else
+        JMap.setInt(GetModValueMap(mod), name, 0)
+    endIf
+endFunction
+
+; Set/Get Form
+
+; Set/Get ARRAYS
+
+bool function IsConfigVariableExists(string mod, string name) global
+    return JMap.hasKey(GetModValueMap(mod), name)
+endFunction
+
 int function GetModDataStructure(string mod) global
     string modPath = ".mcmConfig." + mod
     int modData = JDB.solveObj(modPath)
