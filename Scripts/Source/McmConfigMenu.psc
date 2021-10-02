@@ -232,6 +232,14 @@ event OnOptionMenuAccept(int optionId, int index)
     SetMenuOptionValue(optionId, selected)
 endEvent
 
+event OnOptionHighlight(int optionId)
+    int widget = GetOptionWidget(optionId)
+    string tooltip = JMap.getStr(widget, "tooltip")
+    if tooltip
+        SetInfoText(tooltip)
+    endIf
+endEvent
+
 function InvokeFunction(string functionName)
     int theEvent = ModEvent.Create(ModName + " MCM Function " + functionName)
     ModEvent.Send(theEvent)

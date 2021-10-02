@@ -8,13 +8,15 @@
             "type": "text",
             "description": "Hold onto yout butts...",
             "text": "Reboot",
-            "function": "RebootJurassicPark"
+            "function": "RebootJurassicPark",
+            "tooltip": "This reboots the system. Where is Nedrey anyway?"
         },
         {
             "type": "toggle",
             "text": "Dinosaur Gates Locked",
             "name": "DinoGatesLocked",
-            "default": "true"
+            "default": "true",
+            "tooltip": "This locks or unlocks the dinosaur gates of Jurassic Park"
         },
         {
             "type": "slider",
@@ -22,7 +24,8 @@
             "text": "Number of dinosaurs",
             "range": [1, 10],
             "interval": 2,
-            "value": 5
+            "value": 5,
+            "tooltip": "Configures number of dinosaurs"
         },
         {
             "type": "menu",
@@ -33,7 +36,8 @@
                 "Velociraptor",
                 "Tricerotops",
                 "Brontosaurus"
-            ]
+            ],
+            "tooltip": "Choose your favorite dinosaur"
         }
     ]
 }
