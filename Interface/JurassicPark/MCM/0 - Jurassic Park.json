@@ -9,7 +9,7 @@
             "type": "text",
             "description": "Hold onto yout butts...",
             "text": "Reboot",
-            "function": "RebootJurassicPark",
+            "onclick": "RebootJurassicPark",
             "tooltip": "This reboots the system. Where is Nedrey anyway?"
         },
         {
@@ -45,6 +45,13 @@
             "type": "color",
             "name": "FaveColor",
             "text": "Your favorite dinosaur color"
+        },
+        {
+            "type": "keymap",
+            "name": "DinoHotkey",
+            "text": "Summons a dinosaur",
+            "key": 34,
+            "onchange": "OnDinoHotkeyChange"
         }
     ]
 }

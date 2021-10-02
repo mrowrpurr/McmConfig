@@ -23,6 +23,10 @@ event OnConfigInit()
     ModName = GetModNameFromScriptName()
     McmFolder = "Data\\Interface\\" + ModName + "\\MCM"
     LoadPages()
+    OnMenuInit()
+endEvent
+
+event OnMenuInit()
 endEvent
 
 event OnPageReset(string pageName)
@@ -70,6 +74,8 @@ function RenderWidget(int widget)
         RenderMenuWidget(widget)
     elseIf type == "color"
         RenderColorWidget(widget)
+    elseIf type == "keymap"
+        RenderKeyMapWidget(widget)
     else
         AddEmptyOption()
     endIf
@@ -140,6 +146,16 @@ function RenderColorWidget(int widget)
     RegisterOption(widget, AddColorOption(text, color))
 endFunction
 
+function RenderKeyMapWidget(int widget)
+    string name = JMap.getStr(widget, "name")
+    string text = JMap.getStr(widget, "text")
+    int keyCode = JMap.getInt(widget, "key")
+    if McmConfig.ConfigVariableExists(ModName, name)
+        keyCode = McmConfig.GetInt(ModName, name)
+    endIf
+    RegisterOption(widget, AddKeymapOption(text, keyCode))
+endFunction
+
 function RegisterOption(int widget, int optionId)
     int optionMap = McmConfig.GetModOptionMap(ModName)
     JIntMap.setObj(optionMap, optionId, widget)
@@ -166,9 +182,49 @@ function LoadPages()
         ; Add the page with the filename
         McmConfig.AddPageFileName(ModName, Pages[i], pageFileNames[i])
 
+        InitializePageConfiguration(JMap.getObj(pageFiles, pageFileNames[i]))
+
         i += 1
     endWhile
 endFunction
+
+function InitializePageConfiguration(int page)
+    int leftColumn = JMap.getObj(page, "left")
+    int rightColumn = JMap.getObj(page, "right")
+
+    ; Go through right column
+    int widgetCount = JArray.count(leftColumn)
+    int widgetIndex = 0
+    while widgetIndex < widgetCount
+        int widget = JArray.getObj(leftColumn, widgetIndex)
+        string type = JMap.getStr(widget, "type")
+        string name = JMap.getStr(widget, "name")
+        if name
+            if type == "keymap"
+                int keyCode = JMap.getInt(widget, "key")
+                McmConfig.SetInt(ModName, name, keyCode)
+            endIf
+        endIf
+        widgetIndex += 1
+    endWhile
+
+    ; Go through left column
+    widgetCount = JArray.count(rightColumn)
+    widgetIndex = 0
+    while widgetIndex < widgetCount
+        int widget = JArray.getObj(rightColumn, widgetIndex)
+        string type = JMap.getStr(widget, "type")
+        string name = JMap.getStr(widget, "name")
+        if name
+            if type == "keymap"
+                int keyCode = JMap.getInt(widget, "key")
+                McmConfig.SetInt(ModName, name, keyCode)
+            endIf
+        endIf
+        widgetIndex += 1
+    endWhile
+endFunction
+
 
 string function GetModNameFromScriptName()
     string script = self
@@ -266,6 +322,21 @@ event OnOptionColorAccept(int optionId, int color)
     SetColorOptionValue(optionId, color)
 endEvent
 
+event OnOptionKeyMapChange(int optionId, int keyCode, string conflictControl, string conflictName)
+    ; TODO conflict control stuffs
+    int widget = GetOptionWidget(optionId)
+    string name = JMap.getStr(widget, "name")
+    McmConfig.SetInt(ModName, name, keyCode)
+    SetKeyMapOptionValue(optionId, keyCode)
+    string onchange = JMap.getStr(widget, "onchange")
+    if onchange
+        int theEvent = ModEvent.Create(ModName + " MCM OnChange " + onchange)
+        ModEvent.PushInt(theEvent, keyCode)
+        ModEvent.Send(theEvent)
+    endIf
+endEvent
+
+; Refactor
 function InvokeFunction(string functionName)
     int theEvent = ModEvent.Create(ModName + " MCM Function " + functionName)
     ModEvent.Send(theEvent)
@@ -284,9 +355,13 @@ function StartListeningToAllFunctionCallsInAllPages(int pageMap)
         int widgetIndex = 0
         while widgetIndex < widgetCount
             int widget = JArray.getObj(leftColumn, widgetIndex)
-            string functionName = JMap.getStr(widget, "function")
+            string functionName = JMap.getStr(widget, "onchange")
             if functionName
-                RegisterForModEvent(ModName + " MCM Function " + functionName, functionName)
+                RegisterForModEvent(ModName + " MCM OnChange " + functionName, functionName)
+            endIf
+            functionName = JMap.getStr(widget, "onclick")
+            if functionName
+                RegisterForModEvent(ModName + " MCM OnClick " + functionName, functionName)
             endIf
             widgetIndex += 1
         endWhile
@@ -296,9 +371,13 @@ function StartListeningToAllFunctionCallsInAllPages(int pageMap)
         widgetIndex = 0
         while widgetIndex < widgetCount
             int widget = JArray.getObj(rightColumn, widgetIndex)
-            string functionName = JMap.getStr(widget, "function")
+            string functionName = JMap.getStr(widget, "onchange")
             if functionName
-                RegisterForModEvent(ModName + " MCM Function " + functionName, functionName)
+                RegisterForModEvent(ModName + " MCM OnChange " + functionName, functionName)
+            endIf
+            functionName = JMap.getStr(widget, "onclick")
+            if functionName
+                RegisterForModEvent(ModName + " MCM OnClick " + functionName, functionName)
             endIf
             widgetIndex += 1
         endWhile
