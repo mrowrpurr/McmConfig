@@ -68,6 +68,8 @@ function RenderWidget(int widget)
         RenderSliderWidget(widget)
     elseIf type == "menu"
         RenderMenuWidget(widget)
+    elseIf type == "color"
+        RenderColorWidget(widget)
     else
         AddEmptyOption()
     endIf
@@ -125,6 +127,17 @@ function RenderMenuWidget(int widget)
         value = McmConfig.GetString(ModName, name)
     endIf
     RegisterOption(widget, AddMenuOption(text, value))
+endFunction
+
+function RenderColorWidget(int widget)
+    string name = JMap.getStr(widget, "name")
+    string text = JMap.getStr(widget, "text")
+    ; TODO default color
+    int color = 0
+    if McmConfig.ConfigVariableExists(ModName, name)
+        color = McmConfig.GetInt(ModName, name)
+    endIf
+    RegisterOption(widget, AddColorOption(text, color))
 endFunction
 
 function RegisterOption(int widget, int optionId)
@@ -240,6 +253,17 @@ event OnOptionHighlight(int optionId)
     if tooltip
         SetInfoText(tooltip)
     endIf
+endEvent
+
+event OnOptionColorOpen(int optionId)
+    int widget = GetOptionWidget(optionId)
+endEvent
+
+event OnOptionColorAccept(int optionId, int color)
+    int widget = GetOptionWidget(optionId)
+    string name = JMap.getStr(widget, "name")
+    McmConfig.SetInt(ModName, name, color)
+    SetColorOptionValue(optionId, color)
 endEvent
 
 function InvokeFunction(string functionName)

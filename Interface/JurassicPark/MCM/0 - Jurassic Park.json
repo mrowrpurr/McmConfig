@@ -40,6 +40,11 @@
                 "Brontosaurus"
             ],
             "tooltip": "Choose your favorite dinosaur"
+        },
+        {
+            "type": "color",
+            "name": "FaveColor",
+            "text": "Your favorite dinosaur color"
         }
     ]
 }

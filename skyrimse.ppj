@@ -22,7 +22,7 @@
         <!-- <Import>@ImportsFolder\SkyUnit\Scripts\Source</Import> -->
         <Import>@ModsFolder\SkyUnit\Scripts\Source</Import>
         <!-- <Import>@ImportsFolder\PapyrusUtil\Scripts\Source</Import> -->
-        <!-- <Import>@ImportsFolder\UIExtensions\scripts\source</Import> -->
+        <Import>@ModsFolder\FormHelper\scripts\source</Import>
         <Import>@ImportsFolder\JContainers\scripts\source</Import>
         <!-- <Import>@ImportsFolder\LibFire\Scripts\Source</Import> -->
         <!-- <Import>@ImportsFolder\iWantWidgets\Source\Scripts</Import> -->
