@@ -46,7 +46,8 @@ event OnPageReset(string pageName)
     endIf
 
     string pageFileName = McmConfig.GetPageFileName(ModName, pageName)
-    int page = JValue.readFromFile(McmFolder + "\\" + pageFileName)
+    
+    int page = McmConfig.GetPage(ModName, pageName)
 
     ; Left Column
     SetCursorFillMode(TOP_TO_BOTTOM)
@@ -181,11 +182,21 @@ endFunction
 function RegisterOption(int widget, int optionId)
     int optionMap = McmConfig.GetModOptionMap(ModName)
     JIntMap.setObj(optionMap, optionId, widget)
+    string name = JMap.getStr(widget, "name")
+    if name
+        int optionIdsMap = McmConfig.GetModOptionIdsMap(ModName)
+        JMap.setInt(optionIdsMap, name, optionId)
+    endIf
 endFunction
 
 int function GetOptionWidget(int optionId)
     int optionMap = McmConfig.GetModOptionMap(ModName)
     return JIntMap.getObj(optionMap, optionId)
+endFunction
+
+int function GetOptionId(string name)
+    int optionIdsMap = McmConfig.GetModOptionIdsMap(ModName)
+    return JMap.getInt(optionIdsMap, name)
 endFunction
 
 function LoadPages()
@@ -201,13 +212,9 @@ function LoadPages()
         ; Get the page "object"
         int page = JMap.getObj(pageFiles, pageFileNames[i]) 
 
-        ; Debug.MessageBox(page)
-
         InitializePageConfiguration(page)
 
         string pageName = pageFileNames[i]
-
-        ; Debug.MessageBox(pageName)
 
         ; Remove the .json
         pageName = StringUtil.Substring(pageName, 0, StringUtil.Find(pageName, ".json"))
@@ -215,10 +222,9 @@ function LoadPages()
         ; Remove the number prefix
         pageName = StringUtil.Substring(pageName, StringUtil.Find(pageName, "-") + 1)
 
-        ; Debug.MessageBox(pageName)
-
         ; Add the page with the filename
         McmConfig.AddPageFileName(ModName, pageName, pageFileNames[i])
+        McmConfig.AddPageByName(ModName, pageName, page)
 
         if (! JMap.hasKey(page, "visible")) || JMap.getInt(page, "visible")
             if mcmPages
@@ -230,8 +236,6 @@ function LoadPages()
                 mcmPages[0] = pageName
             endIf
         endIf
-
-        ; Debug.MessageBox(mcmPages)
 
         i += 1
     endWhile
@@ -437,3 +441,18 @@ function StartListeningToAllFunctionCallsInAllPages(int pageMap)
         pageIndex += 1
     endWhile
 endFunction
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;; Hide / Show Pages
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+function HidePage(string pageName)
+    int page = McmConfig.GetPage(ModName, pageName)
+    JMap.setInt(page, "visible", 0)
+endFunction
+
+function ShowPage(string pageName)
+    int page = McmConfig.GetPage(ModName, pageName)
+    JMap.setInt(page, "visible", 1)
+endFunction
+

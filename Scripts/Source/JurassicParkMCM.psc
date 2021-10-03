@@ -1,11 +1,80 @@
 scriptName JurassicParkMCM extends McmConfigMenu
 
 Sound property JP_PasswordFailure auto
+Sound property JP_SystemReboot auto
 
 function OnPasswordAttempt(string password)
-    JP_PasswordFailure.Play(Game.GetPlayer())
-    Utility.WaitMenuMode(3.5)
-    JP_PasswordFailure.Play(Game.GetPlayer())
+    if password == "god"
+        JP_SystemReboot.Play(Game.GetPlayer())
+
+        int optionId = GetOptionId("AccessStatus")
+        SetTextOptionValue(optionId, "<font color='#ffc107'>Rebooting...</font>")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "<font color='#ffc107'>Rebooting...</font>")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "<font color='#ffc107'>Rebooting...</font>")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "<font color='#ffc107'>Rebooting...</font>")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "<font color='#ffc107'>Rebooting...</font>")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "<font color='#ffc107'>Rebooting...</font>")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "<font color='#00ff00'>Access Granted</font>")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "<font color='#00ff00'>Access Granted</font>")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "<font color='#00ff00'>Access Granted</font>")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "<font color='#00ff00'>Access Granted</font>")
+
+        HidePage("Unlock Security Grid")
+        ShowPage("Main Security Grid")
+        ShowPage("Fence Security")
+        ShowPage("Exterior Grid")
+
+        Pages = new string[3]
+        Pages[0] = "Main Security Grid"
+        Pages[1] = "Fence Security"
+        Pages[2] = "Exterior Grid"
+
+        Debug.MessageBox("System Rebooted.\n\nExit and Reopen Menu to Continue.")
+    else
+        JP_PasswordFailure.Play(Game.GetPlayer())
+        int optionId = GetOptionId("AccessStatus")
+        SetTextOptionValue(optionId, "<font color='#ff0000'>Access Denied</font>")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "<font color='#ff0000'>Access Denied</font>")
+        Utility.WaitMenuMode(1.0)
+        JP_PasswordFailure.Play(Game.GetPlayer())
+        SetTextOptionValue(optionId, "")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "<font color='#ff0000'>Access Denied</font>")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "")
+        Utility.WaitMenuMode(1.0)
+        SetTextOptionValue(optionId, "<font color='#ff0000'>Access Denied</font>")
+    endIf
 endFunction
 
 

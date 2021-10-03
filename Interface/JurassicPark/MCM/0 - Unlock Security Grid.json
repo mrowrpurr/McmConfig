@@ -10,9 +10,10 @@
     ],
     "right": [
         {
+            "name": "AccessStatus",
             "type": "text",
-            "text": "Attempt Failed",
-            "color": "#ff0000"
+            "text": "",
+            "color": ""
         }
     ]
 }
