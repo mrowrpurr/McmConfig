@@ -45,9 +45,13 @@ event OnPageReset(string pageName)
         UnloadCustomContent()
     endIf
 
+    JValue.writeToFile(McmConfig.GetModDataStructure(ModName), "TheFile.json")
+
     string pageFileName = McmConfig.GetPageFileName(ModName, pageName)
-    
+
     int page = McmConfig.GetPage(ModName, pageName)
+
+    ; Debug.MessageBox("Rendering Page " + pageName + " from database item " + page)
 
     ; Left Column
     SetCursorFillMode(TOP_TO_BOTTOM)
@@ -220,7 +224,7 @@ function LoadPages()
         pageName = StringUtil.Substring(pageName, 0, StringUtil.Find(pageName, ".json"))
 
         ; Remove the number prefix
-        pageName = StringUtil.Substring(pageName, StringUtil.Find(pageName, "-") + 1)
+        pageName = StringUtil.Substring(pageName, StringUtil.Find(pageName, "-") + 2)
 
         ; Add the page with the filename
         McmConfig.AddPageFileName(ModName, pageName, pageFileNames[i])
